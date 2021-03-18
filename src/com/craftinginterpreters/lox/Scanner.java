@@ -8,11 +8,6 @@ import java.util.Map;
 import static com.craftinginterpreters.lox.TokenType.*;
 
 public class Scanner {
-    private final String source;
-    private final List<Token> tokens = new ArrayList<>();
-    private int start = 0;
-    private int current = 0;
-    private int line = 1;
     private static final Map<String, TokenType> keywords;
 
     static {
@@ -34,6 +29,12 @@ public class Scanner {
         keywords.put("var", VAR);
         keywords.put("while", WHILE);
     }
+
+    private final String source;
+    private final List<Token> tokens = new ArrayList<>();
+    private int start = 0;
+    private int current = 0;
+    private int line = 1;
 
     public Scanner(String source) {
         this.source = source;
@@ -100,7 +101,7 @@ public class Scanner {
     }
 
     private void identifier() {
-        while (!isAlphaNumeric(peek())) advance();
+        while (isAlphaNumeric(peek())) advance();
 
         String text = source.substring(start, current);
         TokenType type = keywords.get(text);
@@ -136,7 +137,7 @@ public class Scanner {
         advance();
 
         // Trim the surrounding quotes.
-        String value = source.substring(start + 1, current + 1);
+        String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
     }
 
