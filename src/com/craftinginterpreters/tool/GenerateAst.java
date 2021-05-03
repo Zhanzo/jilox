@@ -20,9 +20,12 @@ public class GenerateAst {
             "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token operator, Expr right",
             "Call     : Expr callee, Token paren, List<Expr> arguments",
+            "Get      : Expr object, Token name",
             "Grouping : Expr expression",
             "Literal  : Object value",
             "Logical  : Expr left, Token operator, Expr right",
+            "Set      : Expr object, Token name, Expr value",
+            "This     : Token keyword",
             "Unary    : Token operator, Expr right",
             "Variable : Token name"));
 
@@ -31,6 +34,7 @@ public class GenerateAst {
         "Stmt",
         Arrays.asList(
             "Block      : List<Stmt> statements",
+            "Class      : Token name, List<Stmt.Function> methods",
             "Expression : Expr expression",
             "Function   : Token name, List<Token> params, List<Stmt> body",
             "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
@@ -62,19 +66,19 @@ public class GenerateAst {
 
     // The base accept() method.
     writer.println();
-    writer.println("    abstract <R> R accept(Visitor<R> visitor);");
+    writer.println("  abstract <R> R accept(Visitor<R> visitor);");
 
     writer.println("}");
     writer.close();
   }
 
   private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
-    writer.println("    interface Visitor<R> {");
+    writer.println("  interface Visitor<R> {");
 
     for (String type : types) {
       String typeName = type.split(":")[0].trim();
       writer.println(
-          "        R visit"
+          "    R visit"
               + typeName
               + baseName
               + "("
@@ -84,38 +88,38 @@ public class GenerateAst {
               + ");");
     }
 
-    writer.println("    }");
+    writer.println("  }");
   }
 
   private static void defineType(
       PrintWriter writer, String baseName, String className, String fieldList) {
-    writer.println("    static class " + className + " extends " + baseName + " {");
+    writer.println("  static class " + className + " extends " + baseName + " {");
 
     // Fields
     String[] fields = fieldList.split(", ");
     for (String field : fields) {
-      writer.println("        final " + field + ";");
+      writer.println("    final " + field + ";");
     }
 
     // Constructor.
     writer.println();
-    writer.println("        " + className + "(" + fieldList + ")" + "{");
+    writer.println("    " + className + "(" + fieldList + ")" + "{");
 
     // Store parameters in fields.
     for (String field : fields) {
       String name = field.split(" ")[1];
-      writer.println("            this." + name + " = " + name + ";");
+      writer.println("      this." + name + " = " + name + ";");
     }
 
-    writer.println("        }");
+    writer.println("    }");
 
     // Visitor pattern.
     writer.println();
-    writer.println("        @Override");
-    writer.println("        <R> R accept(Visitor<R> visitor) {");
-    writer.println("            return visitor.visit" + className + baseName + "(this);");
-    writer.println("        }");
-
+    writer.println("    @Override");
+    writer.println("    <R> R accept(Visitor<R> visitor) {");
+    writer.println("      return visitor.visit" + className + baseName + "(this);");
     writer.println("    }");
+
+    writer.println("  }");
   }
 }
